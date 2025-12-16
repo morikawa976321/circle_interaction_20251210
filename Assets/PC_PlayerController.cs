@@ -1,49 +1,87 @@
 using UnityEngine;
-using UnityEngine.InputSystem; // ← これが必要です
+using UnityEngine.InputSystem;
 
+[RequireComponent(typeof(CharacterController))]
 public class PCPlayerController : MonoBehaviour
 {
-    public float speed = 3.0f;
+    [Header("Movement Settings")]
+    public float moveSpeed = 3.0f;
+    public float gravity = 9.81f;
+
+    [Header("Look Settings")]
+    public float mouseSensitivity = 15f;
+    public Transform playerCamera;
+    
+    private float xRotation = 0f;
     private Animator animator;
+    private CharacterController characterController;
+    
+    // Y軸（垂直）方向の速度を保持する変数
+    private Vector3 verticalVelocity;
 
     void Start()
     {
         animator = GetComponent<Animator>();
+        characterController = GetComponent<CharacterController>();
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     void Update()
     {
-        // キーボードが接続されていない場合は何もしない（エラー防止）
-        if (Keyboard.current == null) return;
+        if (Keyboard.current == null || Mouse.current == null) return;
 
+        // --- 0. 接地判定と重力リセット（ここが重要！） ---
+        // 地面についているなら、Y軸の速度をリセット（完全に0にすると浮くことがあるので、わずかに下へ押す）
+        if (characterController.isGrounded && verticalVelocity.y < 0)
+        {
+            verticalVelocity.y = -2f; 
+        }
+
+        // --- 1. マウス視点操作 ---
+        Vector2 mouseDelta = Mouse.current.delta.ReadValue();
+        float mouseX = mouseDelta.x * mouseSensitivity * Time.deltaTime;
+        float mouseY = mouseDelta.y * mouseSensitivity * Time.deltaTime;
+
+        xRotation -= mouseY;
+        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
+
+        if (playerCamera != null)
+        {
+            playerCamera.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+        }
+        transform.Rotate(Vector3.up * mouseX);
+
+        // --- 2. 移動入力 ---
         float moveZ = 0f;
         float moveX = 0f;
 
-        // --- 新しいInput Systemでの記述 (IJKL) ---
-
-        // 前進 (I)
         if (Keyboard.current.iKey.isPressed) moveZ = 1f;
-        // 後退 (K)
         else if (Keyboard.current.kKey.isPressed) moveZ = -1f;
 
-        // 右移動 (L)
         if (Keyboard.current.lKey.isPressed) moveX = 1f;
-        // 左移動 (J)
         else if (Keyboard.current.jKey.isPressed) moveX = -1f;
 
-        // --- 移動処理（変更なし） ---
-        Vector3 movement = new Vector3(moveX, 0, moveZ);
+        Vector3 moveDirection = transform.right * moveX + transform.forward * moveZ;
         
-        if (movement.magnitude > 1f) movement.Normalize();
+        if (moveDirection.magnitude > 1f) moveDirection.Normalize();
 
-        transform.Translate(movement * speed * Time.deltaTime);
+        // --- 3. 移動実行 ---
+        // 水平方向の移動
+        characterController.Move(moveDirection * moveSpeed * Time.deltaTime);
 
-        // --- アニメーション切り替え（変更なし） ---
-        bool isMoving = movement.sqrMagnitude > 0;
+        // 垂直方向（重力）の計算と適用
+        verticalVelocity.y -= gravity * Time.deltaTime;
+        characterController.Move(verticalVelocity * Time.deltaTime);
+
+        // --- 4. アニメーション ---
+        // 入力があるかどうかだけで判定（微細な滑りを無視するため）
+        bool isInputting = (moveX != 0 || moveZ != 0);
         
         if (animator != null)
         {
-            animator.SetBool("isWalking", isMoving);
+            animator.SetBool("isWalking", isInputting);
         }
     }
 }
