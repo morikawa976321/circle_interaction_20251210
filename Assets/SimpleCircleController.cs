@@ -3,6 +3,7 @@ using UnityEngine;
 public class SimpleCircleController : MonoBehaviour
 {
     public int mode;
+    public int room;
     public Transform targetA;
     public Transform targetB;
     public Transform quadA;
@@ -24,36 +25,46 @@ public class SimpleCircleController : MonoBehaviour
                 defaultRadius = 1.6f;
                 ratioA = 1.0f;
                 ratioB = 1.5f;
+                room =1;
             } else if (9 <= targetA.position.z && targetA.position.z <= 18){
                 defaultRadius = 0.0f;
+                room =0;
             } else if (18 < targetA.position.z && targetA.position.z < 27){
                 defaultRadius = 1.6f;
                 ratioA = 1.0f;
                 ratioB = 1.0f;
+                room =2;
             } else if (27 <= targetA.position.z && targetA.position.z <= 36){
                 defaultRadius = 0.0f;
+                room =0;
             } else if (36 < targetA.position.z && targetA.position.z < 45){
                 defaultRadius = 1.6f;
                 ratioA = 1.0f;
                 ratioB = 0.5f;
+                room =3;
             }
         } else if (mode == 1){
             if (0 < targetA.position.z && targetA.position.z < 9){
                 defaultRadius = 1.6f;
                 ratioA = 1.0f;
                 ratioB = 0.5f;
+                room =1;
             } else if (9 <= targetA.position.z && targetA.position.z <= 18){
                 defaultRadius = 0.0f;
+                room =0;
             } else if (18 < targetA.position.z && targetA.position.z < 27){
                 defaultRadius = 1.6f;
                 ratioA = 1.0f;
                 ratioB = 1.0f;
+                room =2;
             } else if (27 <= targetA.position.z && targetA.position.z <= 36){
                 defaultRadius = 0.0f;
+                room =0;
             } else if (36 < targetA.position.z && targetA.position.z < 45){
                 defaultRadius = 1.6f;
                 ratioA = 1.0f;
                 ratioB = 1.5f;
+                room =3;
             }
         }
 
