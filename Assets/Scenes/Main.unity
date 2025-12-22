@@ -148,7 +148,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f9a5f1de4865b646ac2c5d3e15b9136, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mode: 0
+  mode: 1
   room: 0
   targetA: {fileID: 589973095}
   targetB: {fileID: 1716651236}
